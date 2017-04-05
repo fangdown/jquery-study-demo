@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>轮播-jQuery</title>
+  <style>
+    ul,li{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    a{
+      text-decoration: none;
+    }
+    .carousel {
+      position: relative;
+      width: 780px;
+      height: 280px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .ct-img-big {
+     position: absolute;
+     width: 6240px;
+     height: 230px;
+    }
+    .clear:after{
+      display: block;
+      content: '.';
+      height: 0;
+      clear: both;
+    }
+    .ct-img-big>li{
+      float: left;
+    }
+    .ct-img-big>li img{
+      width: 780px;
+      height: 230px;
+    }
+    .btn{
+      display: block;
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      font-size: 24px;
+      color:#ccc;
+    }
+    .btn-next{
+      top: 50%;
+      margin-top: -50px;
+      right: 0;
+    }
+    .btn-prev{
+      top: 50%;
+      margin-top: -50px;
+      left: 0;
+    }
+    .ct-img-small{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+    .ct-img-small>li{
+      float: left;
+      opacity: 0.5;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+    .ct-img-small>li:last-child{
+      margin-right: 0;
+    }
+    .ct-img-small>li.active{
+      opacity: 1;
+    }
+    .ct-img-small>li img{
+      width: 80px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="carousel">
+    <ul class="ct-img-big clear" style="left:-780px">
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/2.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/2.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/3.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/8.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/5.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/6.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/7.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://itres.yulong.com/images/ekp/EkpBanner/7.jpg" alt=""></a></li>
+    </ul>
+    <a class="btn btn-prev" href="">&lt;</a>
+    <a class="btn btn-next" href="">&gt;</a>
+    <ul class="ct-img-small clear">
+      <li class="active"><img src="http://itres.yulong.com/images/ekp/EkpBanner/2.jpg" alt=""></li>
+      <li><img src="http://itres.yulong.com/images/ekp/EkpBanner/3.jpg" alt=""></li>
+      <li><img src="http://itres.yulong.com/images/ekp/EkpBanner/8.jpg" alt=""></li>
+      <li><img src="http://itres.yulong.com/images/ekp/EkpBanner/5.jpg" alt=""></li>
+      <li><img src="http://itres.yulong.com/images/ekp/EkpBanner/6.jpg" alt=""></li>
+      <li><img src="http://itres.yulong.com/images/ekp/EkpBanner/7.jpg" alt=""></li>
+    </ul>
+  </div>
+  <p>原理：和index-jq-left很类似，都是增加2个显示元素（头和尾），通过left偏移来实现，注意原生点击事件是onclick，以及阻止默认事件</p>
+  <p><a href="index-jq-left.html">用animate-css-left方式轮播</a></p>
+  <p><a href="index-jq-fade.html">用fade方式轮播</a></p>
+  <p><a href="index-css.html">用css方式轮播</a></p>  
+  <script>
+    var carousel = document.getElementsByClassName('carousel')[0],
+        imgBig = document.getElementsByClassName('ct-img-big')[0],
+        btnPrev = document.getElementsByClassName('btn-prev')[0],
+        btnNext = document.getElementsByClassName('btn-next')[0],
+        imgSmall = document.getElementsByClassName('ct-img-small')[0],
+        timer = '',
+        index = 1;
+    play();
+    function play(){
+      timer = setInterval(function(){
+        btnNext.click()
+      },3000)
+    }
+    function animate(offset){
+      var newLeft = parseInt(imgBig.style.left) + offset;
+      imgBig.style.left = newLeft + 'px';
+      if(newLeft > -780){
+        imgBig.style.left = -4680 + 'px';
+      }
+      if(newLeft < -4680){ //真实的个数乘以宽度
+        imgBig.style.left = -780 + 'px';
+      }
+    }
+    function smallImg(){
+      var len = imgSmall.children.length;
+      for(var i = 0; i < len; i++){
+        if(imgSmall.children[i].className == 'active'){
+          imgSmall.children[i].className = ''
+        }
+      }
+      imgSmall.children[index-1].className = 'active';
+    }
+    btnNext.onclick = function(e){
+      index += 1;
+      if(index > 6){
+        index = 1;
+      }
+      animate(-780);
+      smallImg();
+      e.preventDefault(); 
+      return false; // 阻止 默认事件
+    };
+    btnPrev.onclick = function(e){
+      index -=1;
+      if(index < 1 ){
+        index = 6;
+      }
+      animate(780);
+      smallImg();
+      e.preventDefault();
+      return false;
+    }
+    carousel.onmouseover = function(){
+      clearInterval(timer);
+    }
+    carousel.onmouseout = function(){
+      timer = setInterval(function(){
+        btnNext.click()
+      },3000);
+    }
+    for(var i = 0; i < imgSmall.children.length; i++){
+      (function(i){
+        imgSmall.children[i].onclick = function(){
+          var clickIndex = i;
+          var offset = 780 * (index - clickIndex -1);
+          animate(offset);
+          index = clickIndex + 1;
+          smallImg();
+        }
+      })(i)
+    }
+  </script>
+</body>
+</html>
