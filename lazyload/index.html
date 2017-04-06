@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>懒加载原理分析</title>
+  <style>
+    .box1{
+      box-sizing: border-box;
+      margin-top: 200px;
+      width: 100px;
+      height: 100px;
+      background: #ccc;
+      border: 1px solid #000;
+    }
+    .box2{
+      box-sizing: border-box;
+      margin-top: 800px;
+      width: 100px;
+      height: 100px;
+      background: #ccc;
+      border: 1px solid #000;
+    }
+    .box3 img{
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <p>原理：监听scroll ，检查元素是否在可视范围（windowHeight + scrollTop > offsetTop &&　scrollTop < offsetTop + elHeight）内 + 检查是否有load class,如果同时满足这2个条件则则把data-src的地址给src，并增加load class属性</p>
+  <div class="box3">
+    <img data-src="http://img0.imgtn.bdimg.com/it/u=2825708665,2860681029&fm=23&gp=0.jpg" src="loading.gif" alt="">
+    <img data-src="http://img1.imgtn.bdimg.com/it/u=1826834447,3866560638&fm=23&gp=0.jpg" src="loading.gif" alt="">
+    <img data-src="http://www.zjs.org.cn/uploadfile/2017/0214/20170214012825171.jpg" src="loading.gif" alt="">
+    <img data-src="http://bizhi.zhuoku.com/wall/jie/20070525/seafood/018.jpg" src="loading.gif" alt="">
+    <img data-src="http://img15.3lian.com/2015/f3/16/d/49.jpg" src="loading.gif" alt="">
+    <img data-src="http://www.3158.cn/data/i10/20160920/13183434595871608.jpg" src="loading.gif" alt="">
+    <img data-src="http://pic.58pic.com/58pic/13/53/62/38P58PIC9cn_1024.jpg" src="loading.gif" alt="">
+    <img data-src="http://www.zjs.org.cn/uploadfile/2017/0214/20170214012825171.jpg" src="loading.gif" alt="">
+  </div>
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    var lazyLoad = {
+      init: function(){
+        this.check();
+      },
+      check: function(){
+        var _this = this;
+        $('.box3 img').not('.load').each(function(){
+          if(_this.isVisiable($(this))){
+            _this.showImg($(this));
+          }
+        })
+      },
+      isVisiable: function($el){ 
+         var windowHeight = $(window).height(),
+            scrollTop = $(window).scrollTop(),
+            offsetTop = $el.offset().top,
+            elHeight = $el.outerHeight();
+        //console.log(windowHeight,scrollTop,offsetTop,elHeight)
+        if(windowHeight + scrollTop > offsetTop &&　scrollTop < offsetTop + elHeight) {
+          return true;
+        }else {
+          return false; 
+        }
+      },
+      showImg: function($imgs){
+        $imgs.each(function(){
+          var src = $(this).attr('data-src');
+          $(this).attr('src',src);
+          $(this).addClass('load')
+        })
+      },
+    }
+    $(window).on('scroll',function(){
+      lazyLoad.check();
+    })
+    lazyLoad.init();
+  </script>
+</body>
+</html>

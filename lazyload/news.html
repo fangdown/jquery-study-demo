@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>懒加载原理分析</title>
+  <style>
+
+    .box3 img{
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <p>原理：监听scroll ，检查元素是否在可视范围（windowHeight + scrollTop > offsetTop &&　scrollTop < offsetTop + elHeight）内 + 检查数据是否加载完成+检查是否已经全部加载完成,如果同时满足这3个条件则则把调用getNews方法</p>
+  <div class="box3">
+    没有相应的后端分页就不显示了
+  </div>
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    var lazyLoad = {
+      pageIndex: 0, //  当前页码
+      isOver: false, // 数据是否全部加载完成
+      isReceiver: false, // 接收数据是否完成
+      init: function(){
+        this.check();
+      },
+      check: function(){
+        var that = this;
+        if(this.isVisiable('.load-more') && !this.isOver && isReceiver){
+          this.getNews()
+        }
+      },
+      isVisiable: function($el){ 
+         var windowHeight = $(window).height(),
+            scrollTop = $(window).scrollTop(),
+            offsetTop = $el.offset().top,
+            elHeight = $el.outerHeight();
+        //console.log(windowHeight,scrollTop,offsetTop,elHeight)
+        if(windowHeight + scrollTop > offsetTop &&　scrollTop < offsetTop + elHeight) {
+          return true;
+        }else {
+          return false; 
+        }
+      },
+      getNews: function(){
+        var that = this;
+        that.isReceiver = false;
+        $.get('data.json',function(data){
+          that.isReceiver = true;
+          that.pageIndex ++;
+          that.appendHtml(data.data);
+        })
+      },
+      appendHtml: function(data){
+        if(data.length == 0){
+          this.isOver = true;
+          return ;
+        }
+        var html = '';
+        $('.box').append(html);
+      }
+    }
+    $(window).on('scroll',function(){
+      lazyLoad.check();
+    })
+    lazyLoad.init();
+  </script>
+</body>
+</html>
